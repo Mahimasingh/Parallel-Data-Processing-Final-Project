@@ -5,7 +5,7 @@
 hadoop.root=~/hadoop-2.9.1
 jar.name=mr-demo-1.0.jar
 jar.path=target/${jar.name}
-job.name=wc.PageRank
+job.name=wc.PageRankDriver
 local.input=input
 local.output=output
 # Pseudo-Cluster Execution
