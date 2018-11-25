@@ -1,0 +1,6 @@
+*.class
+*.jar
+input/
+output/
+target/
+.idea
