@@ -1,7 +1,8 @@
-package ccs.neu.edu.hw3
+package ccs.neu.edu.pagerank
 
 /**
- * @author ${user.name}
+ * @author Mahima Singh
+ * @citation : https://github.com/eBay/Spark/blob/master/examples/src/main/scala/org/apache/spark/examples/SparkPageRank.scala
  */
 import org.apache.spark._
 import org.apache.spark.rdd.RDD
@@ -11,45 +12,37 @@ import org.apache.log4j.LogManager
 import org.apache.log4j.Level
 // import classes required for using GraphX
 import org.apache.spark.graphx._
-object pageRankRDD {
-  
-  class Edges (src:Int,dest:Int){
-    var x: Int = src
-    var y : Int = dest
-  }
-  
-  class PageRank(node:Int,pr:Double){
-    var v : Int = node
-    var pageRank : Double = pr
-  }
+object pageRank {
   
   def main(args : Array[String]) {
     val logger: org.apache.log4j.Logger = LogManager.getRootLogger
-    val conf = new SparkConf().setAppName("Creating graph")
-    val sc = new SparkContext(conf)
-    val textFile = sc.textFile(args(0)) 
-    var eRDD = textFile.map(line=> line.split(","))
-    
-      
-    var eRDD = sc.parallelize(edgesArray.map(edges => (edges.x, edges.y)), 2)
-    var prRDD = sc.parallelize(pageRanks.map(pageRank => (pageRank.v,pageRank.pageRank)), 2)
-    
-    for(i <- 1 to 10) {
-      val tempRDD = eRDD.join(prRDD).flatMap(joinPair => if(joinPair._1 % k == 1) List((joinPair._1,0.toDouble),joinPair._2) 
-                                                         else List(joinPair._2)) 
-      //println("----------------------" + i + "---------------------------------------------------")
-      //println(tempRDD.toDebugString)
-      //println("-----------------------" + i + "--------------------------------------------------")
-      val temp2RDD = tempRDD.reduceByKey(_ + _)
-      val delta = temp2RDD.lookup(0)(0)
-      prRDD = temp2RDD.map(vertex => if(vertex._1 !=0) (vertex._1, (vertex._2 + delta / (k*k).toDouble)) else (vertex._1,vertex._2))
-      val sum = prRDD.map(_._2).sum() - prRDD.lookup(0)(0)
-      println("The sum of all Page Ranks at" +i+ "iteration"+ sum)
-      //println(prRDD.toDebugString)
-    } 
-    prRDD.map(item => item.swap) // interchanges position of entries in each tuple
-                 .sortByKey(ascending = false).top(101).foreach(println) 
-  }
+      if(args.length < 1){
+        System.err.println("Usage: pageRank <file> <iterations>")
+        System.exit(1)
+    }
   
-
-}
+  val sparkConfig = new SparkConf().setAppName("Twitter Page Rank")
+  val iteration = args(1).toInt
+  val sparkContext = new SparkContext(sparkConfig)
+  val graph = sparkContext.textFile(args(0),1)
+  val edges = graph.map{ s => 
+              val node = s.split("\\s+")
+              (node(0),node(1))
+              }.distinct().groupByKey().cache()
+  var ranks = edges.mapValues(v => 1.0)
+  for(i <- 1 to iteration) {
+    logger.info("Iterating : " + i)
+    val intermediateRDD = edges.join(ranks).values.flatMap{ case(links,rank) =>
+      val size = links.size
+      links.map(links => (links, rank / size))
+  }
+    /*
+     * Teleportating page rank : https://www.cs.princeton.edu/~chazelle/courses/BIB/pagerank.htm
+     */
+    ranks = intermediateRDD.reduceByKey(_+_).mapValues(0.15 + 0.85 * _)
+  }
+  val finalPageRank = ranks.collect()
+  finalPageRank.foreach(node => println(node._1+ " has rank: " + node._2))
+ 
+  }
+ }
