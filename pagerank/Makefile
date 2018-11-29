@@ -17,12 +17,13 @@ hdfs.input=input
 hdfs.output=output
 # AWS EMR Execution
 aws.emr.release=emr-5.17.0
-aws.bucket.name=mr-spark
+aws.bucket.name=projectpagerank
 aws.input=input
 aws.output=output
 aws.log.dir=log
-aws.num.nodes=1
-aws.instance.type=m3.xlarge
+aws.num.nodes=10
+aws.instance.type=m4.large
+aws.subnet.id=subnet-ba7cfbdd
 # -----------------------------------------------------------
 
 # Compiles code and builds jar (with dependencies).
@@ -110,7 +111,7 @@ upload-app-aws:
 # Main EMR launch.
 aws: jar upload-app-aws delete-output-aws
 	aws emr create-cluster \
-		--name "WordCount Spark Cluster" \
+		--name "pagerank Cluster" \
 		--release-label ${aws.emr.release} \
 		--instance-groups '[{"InstanceCount":${aws.num.nodes},"InstanceGroupType":"CORE","InstanceType":"${aws.instance.type}"},{"InstanceCount":1,"InstanceGroupType":"MASTER","InstanceType":"${aws.instance.type}"}]' \
 	    --applications Name=Hadoop Name=Spark \
@@ -118,6 +119,7 @@ aws: jar upload-app-aws delete-output-aws
 		--log-uri s3://${aws.bucket.name}/${aws.log.dir} \
 		--use-default-roles \
 		--enable-debugging \
+		--ec2-attributes SubnetId=${aws.subnet.id} \
 		--auto-terminate
 		
 # Download output from S3.
