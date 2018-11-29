@@ -41,8 +41,8 @@ object pageRank {
      */
     ranks = intermediateRDD.reduceByKey(_+_).mapValues(0.15 + 0.85 * _)
   }
-  val finalPageRank = ranks.collect()
-  finalPageRank.foreach(node => println(node._1+ " has rank: " + node._2))
+  
+  ranks.saveAsTextFile(args(2))
  
   }
  }
