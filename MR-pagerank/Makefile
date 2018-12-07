@@ -2,23 +2,21 @@
 
 # Customize these paths for your environment.
 # -----------------------------------------------------------
-hadoop.root=~/hadoop-2.9.1
+hadoop.root=/scratch/hadoop-2.9.1
 jar.name=mr-demo-1.0.jar
 jar.path=target/${jar.name}
 job.name=wc.PageRankDriver
 local.input=input
 local.output=output
 # Pseudo-Cluster Execution
-hdfs.user.name=joe
+hdfs.user.name=mahimasingh
 hdfs.input=input
 hdfs.output=output
 # AWS EMR Execution
 aws.emr.release=emr-5.17.0
 aws.region=us-east-1
-aws.bucket.name=sample-bucket-name
-aws.suffix=exp1
+aws.bucket.name=hadoop-twitter-followers-5w1m
 aws.subnet.id=subnet-6356553a
-aws.subnet.id=subnet-15ac203b
 aws.input=input
 aws.output=output
 aws.log.dir=log
@@ -136,7 +134,7 @@ download-output-aws: clean-local-output
 switch-standalone:
 	cp config/standalone/*.xml ${hadoop.root}/etc/hadoop
 
-# Change to pseudo-cluster mode.
+#Change to pseudo-cluster mode.
 switch-pseudo:
 	cp config/pseudo/*.xml ${hadoop.root}/etc/hadoop
 

@@ -21,11 +21,11 @@ public class AdjacencyListJob {
         @Override
         protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String edge = value.toString();
-            String[] tokens = edge.split(",");
+            String[] tokens = edge.split("\\s+");
 
             if (tokens.length == 2) {
-                long follower = Long.parseLong(tokens[0]);
-                String followed = tokens[1];
+                long follower = Long.parseLong(tokens[1]); //swapping the follower and followed
+                String followed = tokens[0];
 
                 fromEdge.set(follower);
                 toEdges.set(followed);
