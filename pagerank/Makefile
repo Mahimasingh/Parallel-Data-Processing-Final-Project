@@ -37,7 +37,7 @@ clean-local-output:
 
 # Runs standalone
 local: jar clean-local-output
-	spark-submit --class ${job.name} --master ${local.master} --name "${app.name}" ${jar.name} ${local.input} 5 ${local.output}
+	spark-submit --class ${job.name} --master ${local.master} --name "${app.name}" ${jar.name} ${local.input} 10 ${local.output}
 
 # Start HDFS
 start-hdfs:

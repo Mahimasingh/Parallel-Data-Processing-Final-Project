@@ -23,23 +23,51 @@ object pageRank {
   
   val sparkConfig = new SparkConf().setAppName("Twitter Page Rank")
   val iteration = args(1).toInt
+  println("The number of iterations are" + iteration)
   val sparkContext = new SparkContext(sparkConfig)
   val graph = sparkContext.textFile(args(0),1)
-  val edges = graph.map{ s => 
+  
+  val rightEdges = graph.flatMap( s => 
+             s.split("\\s+")(1)
+              )
+  val leftEdges = graph.flatMap( s => 
+             s.split("\\s+")(0))
+  val danglingEdges = rightEdges.subtract(leftEdges).map(x=> (x.toString,"dummy")).groupByKey()
+  
+  var edges = graph.map{ s => 
               val node = s.split("\\s+")
               (node(0),node(1))
-              }.distinct().groupByKey().cache()
+              }.distinct().groupByKey()
+  
+  edges = edges.union(danglingEdges)
   var ranks = edges.mapValues(v => 1.0)
-  for(i <- 1 to iteration) {
+  val dummyRank=sparkContext.parallelize(Seq(("dummy",0.0)))
+  edges = edges.union(danglingEdges)
+  ranks = ranks.union(dummyRank)
+  edges.cache()
+  ranks.persist()
+  
+  for(i <- 1 to 3) {
     logger.info("Iterating : " + i)
     val intermediateRDD = edges.join(ranks).values.flatMap{ case(links,rank) =>
       val size = links.size
-      links.map(links => (links, rank / size))
+       links.map(links => (links, rank / size))
   }
-    /*
-     * Teleportating page rank : https://www.cs.princeton.edu/~chazelle/courses/BIB/pagerank.htm
-     */
-    ranks = intermediateRDD.reduceByKey(_+_).mapValues(0.15 + 0.85 * _)
+    
+   /*
+    * Teleportating page rank : https://www.cs.princeton.edu/~chazelle/courses/BIB/pagerank.htm
+    */
+    
+    ranks = intermediateRDD.reduceByKey(_+_)
+    
+    var delta = ranks.lookup("dummy")(0)
+    println("The value of delta is" + delta)
+    println("****************************************************************")
+   
+    var size = ranks.count() - 1
+    
+    ranks = ranks.map(vertex => if(vertex._1 !="dummy") (vertex._1, (vertex._2 +( delta / size.toDouble))) else (vertex._1,vertex._2))
+    
   }
   
   ranks.saveAsTextFile(args(2))
