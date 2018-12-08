@@ -38,7 +38,7 @@ public class PageRankDriver extends Configured implements Tool {
         }
         else{
             String joinOutput = outputFolder + "/join";
-            success=runJoinJob(outputFolder+"/adj", pageRank, joinOutput);
+            success=runJoinJob(adjacencyListOutput, pageRank, joinOutput);
             if(!success){
                 System.out.println("Issue in Join job");
                 return 1;
