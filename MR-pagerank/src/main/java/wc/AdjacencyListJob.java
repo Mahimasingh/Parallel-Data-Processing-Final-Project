@@ -6,6 +6,8 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringJoiner;
 
 /**
@@ -35,16 +37,16 @@ public class AdjacencyListJob {
         }
     }
 
-    public static class AdjacencyListReducer extends Reducer<LongWritable, Text, LongWritable, Text> {
+    public static class AdjacencyListReducer extends Reducer<LongWritable, Text, LongWritable, GraphNode> {
         @Override
         protected void reduce(LongWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-            Text adjacency = new Text();
-            StringJoiner joiner = new StringJoiner(",");
+            List<Integer> following = new ArrayList<>();
             for (Text val : values) {
-                joiner.add(val.toString());
+                following.add(Integer.parseInt(val.toString()));
             }
-            adjacency.set(joiner.toString());
-            context.write(key, adjacency);
+
+            GraphNode node = new GraphNode(key.get(),following);
+            context.write(key, node);
         }
     }
 }

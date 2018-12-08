@@ -1,0 +1,101 @@
+package wc;
+
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
+import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.WritableUtils;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.io.IOException;
+
+public class GraphNode implements WritableComparable<GraphNode> {
+
+    @SerializedName("nid")
+    Long nodeId;
+
+    @SerializedName("map")
+    HashMap<Integer, Integer> distanceMap;
+
+    @SerializedName("adj")
+    List<Integer> adjacencyList;
+
+    public GraphNode() {
+        adjacencyList = new ArrayList<>();
+    }
+
+    public GraphNode(Long nodeId, List<Integer> adjacencyList) {
+        this.nodeId = nodeId;
+        this.distanceMap = new HashMap<>();
+        this.adjacencyList = adjacencyList;
+    }
+
+//    GraphNode(GraphNode other) {
+//        this.nodeId = other.nodeId;
+//        this.distanceMap = other.distanceMap;
+//        this.adjacencyList = other.adjacencyList;
+//    }
+
+    private String stringRepresentation () throws IOException {
+        Gson gson = new Gson();
+
+        return gson.toJson(this);
+    }
+
+    @Override
+    public void write(DataOutput dataOutput) throws IOException {
+        WritableUtils.writeString(dataOutput, stringRepresentation());
+    }
+
+    @Override
+    public void readFields(DataInput dataInput) throws IOException {
+        String json = WritableUtils.readString(dataInput);
+        Gson gson = new Gson();
+
+        GraphNode other = gson.fromJson(json, GraphNode.class);
+
+        this.nodeId = other.nodeId;
+        this.adjacencyList = other.adjacencyList;
+        this.distanceMap = other.distanceMap;
+    }
+
+    public static GraphNode parseJson(String json) throws IOException {
+        Gson gson = new Gson();
+
+        GraphNode other = gson.fromJson(json, GraphNode.class);
+
+        return other;
+    }
+
+    public static GraphNode parseRaw(String s) throws IOException {
+        String[] components = s.split(",");
+        GraphNode node = new GraphNode();
+
+        node.nodeId = Long.parseLong(components[0]);
+        node.distanceMap = new HashMap<>();
+        node.adjacencyList = new ArrayList<>();
+
+        for (int i = 1; i < components.length; i++) {
+            node.adjacencyList.add(Integer.parseInt(components[i]));
+        }
+
+        return node;
+    }
+
+    @Override
+    public String toString() {
+        try {
+            return stringRepresentation();
+        }
+        catch (IOException ex) {}
+        return super.toString();
+    }
+
+    @Override
+    public int compareTo(GraphNode o) {
+        return 0;
+    }
+}

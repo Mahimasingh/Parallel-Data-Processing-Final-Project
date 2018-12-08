@@ -2,7 +2,8 @@
 
 # Customize these paths for your environment.
 # -----------------------------------------------------------
-hadoop.root=/scratch/hadoop-2.9.1
+#hadoop.root=/scratch/hadoop-2.9.1
+hadoop.root=~/hadoop-2.9.1
 jar.name=mr-demo-1.0.jar
 jar.path=target/${jar.name}
 job.name=wc.PageRankDriver
