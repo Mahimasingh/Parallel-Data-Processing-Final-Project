@@ -39,11 +39,12 @@ public class GraphNode implements WritableComparable<GraphNode> {
     }
 
 
-//    GraphNode(GraphNode other) {
-//        this.nodeId = other.nodeId;
-//        this.distanceMap = other.distanceMap;
-//        this.adjacencyList = other.adjacencyList;
-//    }
+    GraphNode(GraphNode other) {
+        this.nodeId = other.nodeId;
+        this.distanceMap = other.distanceMap;
+        this.adjacencyList = other.adjacencyList;
+        this.pageRank = other.pageRank;
+    }
 
     private String stringRepresentation () throws IOException {
         Gson gson = new Gson();

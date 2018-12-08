@@ -69,7 +69,7 @@ public class PageRankDriver extends Configured implements Tool {
 
     private boolean runJoinJob(String graphDir, String pageRankDir, String outputDir) throws Exception {
         final Configuration conf = getConf();
-        final Job job = Job.getInstance(conf, "Follower Count");
+        final Job job = Job.getInstance(conf, "Join Adjacency and Page Rank");
         job.setJarByClass(PageRankDriver.class);
         final Configuration jobConf = job.getConfiguration();
         jobConf.set("mapreduce.output.textoutputformat.separator", ",");

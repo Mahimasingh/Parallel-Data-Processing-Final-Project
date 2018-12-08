@@ -46,14 +46,18 @@ public class JoinJob {
     static class JoinJobReducer extends Reducer<LongWritable, GraphNode, LongWritable, GraphNode> {
         @Override
         protected void reduce(LongWritable key, Iterable<GraphNode> values, Context context) throws IOException, InterruptedException {
-            GraphNode node = null;
+            GraphNode node = new GraphNode();
             Double pageRank = 0.0;
             for(GraphNode value : values) {
-                if (value.nodeId == -1) {
+                if (value.nodeId == -1) { // here we have received the page rank
                     pageRank = value.pageRank;
+                    node.nodeId = key.get();
+                    node.pageRank = pageRank;
                 }
-                else {
-                    node = value;
+                else { // Here we are getting a graph
+                    node.adjacencyList = value.adjacencyList;
+                    node.nodeId = value.nodeId;
+                    node.distanceMap = value.distanceMap;
                 }
             }
             if (node != null) {
