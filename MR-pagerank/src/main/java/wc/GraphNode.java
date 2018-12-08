@@ -7,6 +7,7 @@ import org.apache.hadoop.io.WritableUtils;
 
 import java.io.DataInput;
 import java.io.DataOutput;
+import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
@@ -17,8 +18,11 @@ public class GraphNode implements WritableComparable<GraphNode> {
     @SerializedName("nid")
     Long nodeId;
 
+    @SerializedName("pr")
+    Double pageRank;
+
     @SerializedName("map")
-    HashMap<Integer, Integer> distanceMap;
+    Map<Long, Double> distanceMap;
 
     @SerializedName("adj")
     List<Integer> adjacencyList;
@@ -30,8 +34,10 @@ public class GraphNode implements WritableComparable<GraphNode> {
     public GraphNode(Long nodeId, List<Integer> adjacencyList) {
         this.nodeId = nodeId;
         this.distanceMap = new HashMap<>();
+        this.pageRank = 0.0;
         this.adjacencyList = adjacencyList;
     }
+
 
 //    GraphNode(GraphNode other) {
 //        this.nodeId = other.nodeId;
@@ -60,6 +66,7 @@ public class GraphNode implements WritableComparable<GraphNode> {
         this.nodeId = other.nodeId;
         this.adjacencyList = other.adjacencyList;
         this.distanceMap = other.distanceMap;
+        this.pageRank = other.pageRank;
     }
 
     public static GraphNode parseJson(String json) throws IOException {
@@ -70,20 +77,20 @@ public class GraphNode implements WritableComparable<GraphNode> {
         return other;
     }
 
-    public static GraphNode parseRaw(String s) throws IOException {
-        String[] components = s.split(",");
-        GraphNode node = new GraphNode();
-
-        node.nodeId = Long.parseLong(components[0]);
-        node.distanceMap = new HashMap<>();
-        node.adjacencyList = new ArrayList<>();
-
-        for (int i = 1; i < components.length; i++) {
-            node.adjacencyList.add(Integer.parseInt(components[i]));
-        }
-
-        return node;
-    }
+//    public static GraphNode parseRaw(String s) throws IOException {
+//        String[] components = s.split(",");
+//        GraphNode node = new GraphNode();
+//
+//        node.nodeId = Long.parseLong(components[0]);
+//        node.distanceMap = new HashMap<>();
+//        node.adjacencyList = new ArrayList<>();
+//
+//        for (int i = 1; i < components.length; i++) {
+//            node.adjacencyList.add(Integer.parseInt(components[i]));
+//        }
+//
+//        return node;
+//    }
 
     @Override
     public String toString() {

@@ -9,6 +9,7 @@ jar.path=target/${jar.name}
 job.name=wc.PageRankDriver
 local.input=input
 local.output=output
+local.pagerank=pr
 # Pseudo-Cluster Execution
 hdfs.user.name=mahimasingh
 hdfs.input=input
@@ -41,7 +42,7 @@ clean-local-output:
 # Make sure Hadoop  is set up (in /etc/hadoop files) for standalone operation (not pseudo-cluster).
 # https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/SingleCluster.html#Standalone_Operation
 local: jar clean-local-output
-	${hadoop.root}/bin/hadoop jar ${jar.path} ${job.name} ${local.input} ${local.output}
+	${hadoop.root}/bin/hadoop jar ${jar.path} ${job.name} ${local.input} ${local.pagerank} ${local.output}
 
 # Start HDFS
 start-hdfs:
