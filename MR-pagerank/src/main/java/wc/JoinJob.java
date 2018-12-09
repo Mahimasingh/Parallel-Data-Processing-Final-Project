@@ -18,6 +18,9 @@ public class JoinJob {
                 valueString = valueString.replaceFirst("\\)", "");
 
                 String[] parts = valueString.split(",");
+                if (parts[0].equals("dummy") || parts[1].equals("dummy"))
+                    return;
+
                 Long nodeId = Long.parseLong(parts[0]);
                 Double pageRank = Double.parseDouble(parts[1]);
 
