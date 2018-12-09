@@ -2,6 +2,7 @@ package wc;
 
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
+import javafx.util.Pair;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableUtils;
 
@@ -21,19 +22,19 @@ public class GraphNode implements WritableComparable<GraphNode> {
     @SerializedName("pr")
     Double pageRank;
 
-    @SerializedName("map")
-    Map<Long, Double> distanceMap;
+    @SerializedName("top")
+    Pair<Long, Double> topNeighbor;
 
     @SerializedName("adj")
-    List<Integer> adjacencyList;
+    List<Long> adjacencyList;
 
     public GraphNode() {
         adjacencyList = new ArrayList<>();
     }
 
-    public GraphNode(Long nodeId, List<Integer> adjacencyList) {
+    public GraphNode(Long nodeId, List<Long> adjacencyList) {
         this.nodeId = nodeId;
-        this.distanceMap = new HashMap<>();
+        this.topNeighbor = null;
         this.pageRank = 0.0;
         this.adjacencyList = adjacencyList;
     }
@@ -41,7 +42,7 @@ public class GraphNode implements WritableComparable<GraphNode> {
 
     GraphNode(GraphNode other) {
         this.nodeId = other.nodeId;
-        this.distanceMap = other.distanceMap;
+        this.topNeighbor = other.topNeighbor;
         this.adjacencyList = other.adjacencyList;
         this.pageRank = other.pageRank;
     }
@@ -66,7 +67,7 @@ public class GraphNode implements WritableComparable<GraphNode> {
 
         this.nodeId = other.nodeId;
         this.adjacencyList = other.adjacencyList;
-        this.distanceMap = other.distanceMap;
+        this.topNeighbor = other.topNeighbor;
         this.pageRank = other.pageRank;
     }
 

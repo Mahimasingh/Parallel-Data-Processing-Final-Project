@@ -17,9 +17,9 @@ import java.util.StringJoiner;
 
 public class AdjacencyListJob {
 
-    public static class AdjacencyListMapper extends Mapper<Object, Text, LongWritable, Text> {
+    public static class AdjacencyListMapper extends Mapper<Object, Text, LongWritable, LongWritable> {
         private static LongWritable fromEdge = new LongWritable();
-        private static Text toEdges = new Text();
+        private static LongWritable toEdges = new LongWritable();
         @Override
         protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String edge = value.toString();
@@ -27,25 +27,28 @@ public class AdjacencyListJob {
 
             if (tokens.length == 2) {
                 long follower = Long.parseLong(tokens[1]); //swapping the follower and followed
-                String followed = tokens[0];
+                long followed = Long.parseLong(tokens[0]);
 
                 fromEdge.set(follower);
                 toEdges.set(followed);
 
                 context.write(fromEdge, toEdges);
+                fromEdge.set(-1);
+                context.write(toEdges, fromEdge);
             }
         }
     }
 
-    public static class AdjacencyListReducer extends Reducer<LongWritable, Text, LongWritable, GraphNode> {
+    public static class AdjacencyListReducer extends Reducer<LongWritable, LongWritable, LongWritable, GraphNode> {
         @Override
-        protected void reduce(LongWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-            List<Integer> following = new ArrayList<>();
-            for (Text val : values) {
-                following.add(Integer.parseInt(val.toString()));
+        protected void reduce(LongWritable key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException {
+            List<Long> following = new ArrayList<>();
+            for (LongWritable val : values) {
+                if (val.get() != -1)
+                    following.add(val.get());
             }
 
-            GraphNode node = new GraphNode(key.get(),following);
+            GraphNode node = new GraphNode(key.get(), following);
             context.write(key, node);
         }
     }

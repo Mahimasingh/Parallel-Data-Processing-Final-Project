@@ -7,9 +7,9 @@ hadoop.root=~/hadoop-2.9.1
 jar.name=mr-demo-1.0.jar
 jar.path=target/${jar.name}
 job.name=wc.PageRankDriver
-local.input=input
+local.input=input/edges
 local.output=output
-local.pagerank=pr
+local.pagerank=input/page_rank
 # Pseudo-Cluster Execution
 hdfs.user.name=mahimasingh
 hdfs.input=input
