@@ -2,7 +2,6 @@ package wc;
 
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
-import javafx.util.Pair;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableUtils;
 
