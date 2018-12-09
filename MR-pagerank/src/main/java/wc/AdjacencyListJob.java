@@ -33,6 +33,8 @@ public class AdjacencyListJob {
                 toEdges.set(followed);
 
                 context.write(fromEdge, toEdges);
+                fromEdge.set(-1);
+                context.write(toEdges, fromEdge);
             }
         }
     }
@@ -42,7 +44,8 @@ public class AdjacencyListJob {
         protected void reduce(LongWritable key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException {
             List<Long> following = new ArrayList<>();
             for (LongWritable val : values) {
-                following.add(val.get());
+                if (val.get() != -1)
+                    following.add(val.get());
             }
 
             GraphNode node = new GraphNode(key.get(), following);
