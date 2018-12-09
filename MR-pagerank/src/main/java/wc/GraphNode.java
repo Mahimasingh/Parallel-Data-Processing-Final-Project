@@ -25,13 +25,13 @@ public class GraphNode implements WritableComparable<GraphNode> {
     Map<Long, Double> distanceMap;
 
     @SerializedName("adj")
-    List<Integer> adjacencyList;
+    List<Long> adjacencyList;
 
     public GraphNode() {
         adjacencyList = new ArrayList<>();
     }
 
-    public GraphNode(Long nodeId, List<Integer> adjacencyList) {
+    public GraphNode(Long nodeId, List<Long> adjacencyList) {
         this.nodeId = nodeId;
         this.distanceMap = new HashMap<>();
         this.pageRank = 0.0;

@@ -103,7 +103,7 @@ public class PageRankDriver extends Configured implements Tool {
         job.setMapperClass(NeighborhoodSearch.NeighborhoodSearchMapper.class);
         job.setReducerClass(NeighborhoodSearch.NeighborhoodSearchReducer.class);
         job.setOutputKeyClass(LongWritable.class);
-        job.setOutputValueClass(Text.class);
+        job.setOutputValueClass(GraphNode.class);
 
         FileInputFormat.addInputPath(job, new Path(inputDir));
         FileOutputFormat.setOutputPath(job, new Path(outputDir));
