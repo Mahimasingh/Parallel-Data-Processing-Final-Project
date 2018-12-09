@@ -36,13 +36,19 @@ public class PageRankDriver extends Configured implements Tool {
             System.out.println("Failed Generating Adjacency List");
             return 1;
         }
-        else{
-            String joinOutput = outputFolder + "/join";
-            success=runJoinJob(adjacencyListOutput, pageRank, joinOutput);
-            if(!success){
-                System.out.println("Issue in Join job");
-                return 1;
-            }
+
+        String joinOutput = outputFolder + "/join";
+        success = runJoinJob(adjacencyListOutput, pageRank, joinOutput);
+        if(!success){
+            System.out.println("Issue in Join job");
+            return 1;
+        }
+
+        String searchOutput = outputFolder + "/search";
+        success = runNeighborhoodSearchJob(joinOutput, searchOutput);
+        if (!success) {
+            System.out.println("Failure in Search job");
+            return 1;
         }
 
         return 0;
@@ -50,7 +56,7 @@ public class PageRankDriver extends Configured implements Tool {
 
     private boolean runAdjacencyListJob(String inputDir, String outputDir) throws Exception {
         final Configuration conf = getConf();
-        final Job job = Job.getInstance(conf, "Follower Count");
+        final Job job = Job.getInstance(conf, "Adjacency");
         job.setJarByClass(PageRankDriver.class);
         final Configuration jobConf = job.getConfiguration();
         jobConf.set("mapreduce.output.textoutputformat.separator", ",");
@@ -81,6 +87,25 @@ public class PageRankDriver extends Configured implements Tool {
 
         MultipleInputs.addInputPath(job, new Path(graphDir), TextInputFormat.class);
         MultipleInputs.addInputPath(job, new Path(pageRankDir), TextInputFormat.class);
+        FileOutputFormat.setOutputPath(job, new Path(outputDir));
+        LazyOutputFormat.setOutputFormatClass(job, TextOutputFormat.class);
+
+        return job.waitForCompletion(true);
+    }
+
+    private boolean runNeighborhoodSearchJob(String inputDir, String outputDir) throws Exception {
+        final Configuration conf = getConf();
+        final Job job = Job.getInstance(conf, "Neighborhood Search");
+        job.setJarByClass(PageRankDriver.class);
+        final Configuration jobConf = job.getConfiguration();
+        jobConf.set("mapreduce.output.textoutputformat.separator", ",");
+
+        job.setMapperClass(NeighborhoodSearch.NeighborhoodSearchMapper.class);
+        job.setReducerClass(NeighborhoodSearch.NeighborhoodSearchReducer.class);
+        job.setOutputKeyClass(LongWritable.class);
+        job.setOutputValueClass(Text.class);
+
+        FileInputFormat.addInputPath(job, new Path(inputDir));
         FileOutputFormat.setOutputPath(job, new Path(outputDir));
         LazyOutputFormat.setOutputFormatClass(job, TextOutputFormat.class);
 

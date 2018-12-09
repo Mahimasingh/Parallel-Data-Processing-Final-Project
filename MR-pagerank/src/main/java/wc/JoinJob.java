@@ -22,7 +22,7 @@ public class JoinJob {
                 Double pageRank = Double.parseDouble(parts[1]);
 
                 GraphNode node = new GraphNode();
-                node.nodeId = new Long(-1); // mark dummy
+                node.nodeId = -1; // mark dummy
                 node.pageRank = pageRank;
 
                 keyWritable.set(nodeId);
@@ -34,7 +34,7 @@ public class JoinJob {
                 String part1 = valueString.substring(0, firstComma);
                 String part2 = valueString.substring(firstComma + 1);
 
-                Long nodeId = Long.parseLong(part1);
+                long nodeId = Long.parseLong(part1);
                 GraphNode node = GraphNode.parseJson(part2);
 
                 keyWritable.set(nodeId);

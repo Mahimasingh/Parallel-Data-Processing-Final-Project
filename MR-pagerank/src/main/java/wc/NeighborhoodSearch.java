@@ -11,11 +11,6 @@ public class NeighborhoodSearch {
     static class NeighborhoodSearchMapper extends Mapper<Object, Text, LongWritable, GraphNode> {
         @Override
         protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            String nodeText = value.toString();
-            if(nodeText.contains("{")){
-                // This is adjacency List
-
-            }
 
         }
     }

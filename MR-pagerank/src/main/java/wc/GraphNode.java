@@ -16,7 +16,7 @@ import java.io.IOException;
 public class GraphNode implements WritableComparable<GraphNode> {
 
     @SerializedName("nid")
-    Long nodeId;
+    long nodeId;
 
     @SerializedName("pr")
     Double pageRank;
