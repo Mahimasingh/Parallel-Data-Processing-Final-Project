@@ -44,8 +44,14 @@ public class PageRankDriver extends Configured implements Tool {
             return 1;
         }
 
-        String searchOutput = outputFolder + "/search";
-        success = runNeighborhoodSearchJob(joinOutput, searchOutput);
+        String searchInput = joinOutput;
+        int i = 0;
+        while (i < 2) {
+            String searchOutput = outputFolder + "/search" + (i + 1);
+            success = runNeighborhoodSearchJob(searchInput, searchOutput);
+            i += 1;
+            searchInput = searchOutput;
+        }
         if (!success) {
             System.out.println("Failure in Search job");
             return 1;
