@@ -20,7 +20,15 @@ public class NeighborhoodSearch {
 
             GraphNode dummyNode = new GraphNode();
             dummyNode.nodeId = -1;
-            dummyNode.pageRank = pair.getValue().pageRank;
+
+            if (pair.getValue().topNeighbor == null ||
+            pair.getValue().topNeighbor.getValue() < pair.getValue().pageRank) {
+                dummyNode.topNeighbor = new Pair<>(pair.getKey(), pair.getValue().pageRank);
+            }
+            else {
+                Pair<Long, Double> other = pair.getValue().topNeighbor;
+                dummyNode.topNeighbor = new Pair<>(other.getKey(), other.getValue());
+            }
             for(long childId : pair.getValue().adjacencyList) {
                 keyWritable.set(childId);
                 context.write(keyWritable, dummyNode);
@@ -29,21 +37,16 @@ public class NeighborhoodSearch {
     }
 
     static class NeighborhoodSearchReducer extends Reducer<LongWritable, GraphNode, LongWritable, GraphNode> {
-        private static PriorityQueue<Double> priorityQueue = new PriorityQueue<Double>(5);
         @Override
         protected void reduce(LongWritable key, Iterable<GraphNode> values, Context context) throws IOException, InterruptedException {
-            priorityQueue.clear();
-
             GraphNode node = null;
+            Pair<Long, Double> localTopNeighbor = null;
+
             for (GraphNode value : values) {
                 if (value.nodeId == -1) { // Dummy Node
-                    if (priorityQueue.isEmpty() ||
-                            (priorityQueue.size() < 5) ||
-                            (priorityQueue.size() == 5 && priorityQueue.peek() < value.pageRank)) {
-                        if (priorityQueue.size() == 5)
-                            priorityQueue.poll();
-
-                        priorityQueue.add(value.pageRank);
+                    if (localTopNeighbor == null ||
+                    localTopNeighbor.getValue() < value.topNeighbor.getValue()) {
+                        localTopNeighbor = new Pair<>(value.topNeighbor.getKey(), value.topNeighbor.getValue());
                     }
                 }
                 else {
@@ -52,11 +55,7 @@ public class NeighborhoodSearch {
             }
 
             if (node != null) {
-                long i = 1;
-                while (!priorityQueue.isEmpty()) {
-                    node.distanceMap.put(i, priorityQueue.poll());
-                    i += 1;
-                }
+                node.topNeighbor = localTopNeighbor;
                 context.write(key, node);
             }
         }
